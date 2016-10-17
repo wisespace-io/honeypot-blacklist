@@ -1,4 +1,5 @@
 [![License](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/wisespace-io/honeypot-blacklist/blob/master/LICENSE)
+[![](https://meritbadge.herokuapp.com/honeypot-blacklist)](https://crates.io/crates/honeypot-blacklist)
 
 # honeypot-blacklist
 Rust library for querying Project Honeypot Blacklist (Http:BL)
@@ -38,7 +39,6 @@ fn main() {
 
     let comment_spammer = bl.lookup("127.1.1.3".into()).unwrap();
     print_result(comment_spammer);
-
 }
 
 fn print_result(visitor: Visitor) {
@@ -47,8 +47,7 @@ fn print_result(visitor: Visitor) {
         VisitorClass::Suspicious => println!("It may be a malicous Robot, not confirmed yet"),
         VisitorClass::Harvester => println!("Harvester IP"),
         VisitorClass::CommentSpammer => println!("Comment Spammer IP"),
-        _ => println!("done"),
+        _ => println!("Not found"),
     }
-
 }
 ```
