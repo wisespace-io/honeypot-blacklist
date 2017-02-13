@@ -2,7 +2,7 @@
 [![](https://meritbadge.herokuapp.com/honeypot-blacklist)](https://crates.io/crates/honeypot-blacklist)
 
 # honeypot-blacklist
-Rust library for querying Project Honeypot Blacklist (Http:BL)
+Rust library for querying Project Honeypot Blacklist ([Http:BL](http://www.projecthoneypot.org/httpbl_api.php))
 
 # Usage
 
@@ -12,7 +12,7 @@ Add this to your Cargo.toml
 
 ```toml
 [dependencies]
-honeypot_blacklist = "0.1.0"
+honeypot_blacklist = "0.1"
 ```
 
 # Example
