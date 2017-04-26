@@ -10,4 +10,6 @@ repository = "https://github.com/wisespace-io/honeypot-blacklist"
 readme = "README.md"
 
 [dependencies]
-resolve = "0.1.2"
+domain = "0.2"
+futures = "0.1.11"
+tokio-core = "0.1.6"

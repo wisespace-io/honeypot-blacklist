@@ -2,10 +2,18 @@
 //! [Http:BL API Specification](http://www.projecthoneypot.org/httpbl_api.php)
 #![deny(warnings)]
 
-extern crate resolve;
+extern crate domain;
+extern crate futures;
+extern crate tokio_core;
 
-use std::io::Error;
-use resolve::resolve_host;
+use std::fmt;
+use std::error;
+use std::str::FromStr;
+use domain::bits::DNameBuf;
+use domain::resolv::Resolver;
+use domain::resolv::lookup::lookup_host;
+use tokio_core::reactor::Core;
+use domain::resolv::error::Error as domainError;
 
 static HTTPBL_HOST : &'static str = "dnsbl.httpbl.org";
 
@@ -40,12 +48,30 @@ pub struct Visitor {
 #[derive(Debug)]
 pub enum HoneypotBlacklistError {
     InvalidApiKey,
-    Std(Error),
+    Domain(domainError),
 }
 
-impl From<Error> for HoneypotBlacklistError {
-    fn from(err: Error) -> HoneypotBlacklistError {
-        HoneypotBlacklistError::Std(err)
+impl fmt::Display for HoneypotBlacklistError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            HoneypotBlacklistError::Domain(ref err) => write!(f, "DNS error: {}", err),
+            HoneypotBlacklistError::InvalidApiKey => write!(f, "Invalid Api Key"),
+        }
+    }
+}
+
+impl error::Error for HoneypotBlacklistError {
+    fn description(&self) -> &str {
+        match *self {
+            HoneypotBlacklistError::Domain(ref err) => err.description(),
+            HoneypotBlacklistError::InvalidApiKey => "Invalid Api Key",
+        }
+    }
+}
+
+impl From<domainError> for HoneypotBlacklistError {
+    fn from(err: domainError) -> HoneypotBlacklistError {
+        HoneypotBlacklistError::Domain(err)
     }
 }
 
@@ -65,10 +91,17 @@ impl HoneypotBlacklist {
 
     pub fn lookup(&self, ip: String) -> Result<Visitor, HoneypotBlacklistError> {
         let reversed_ip = ip.rsplit('.').collect::<Vec<&str>>().join(".");
-        let query = format!("{}.{}.{}", self.key, reversed_ip, HTTPBL_HOST);
-        match resolve_host(query.as_ref()) {
-            Ok(mut addrs) => {
-                let addr: String = format!("{}", addrs.next().unwrap());
+        let query_str = format!("{}.{}.{}", self.key, reversed_ip, HTTPBL_HOST);
+
+        let mut core = Core::new().unwrap();
+        let resolv = Resolver::new(&core.handle());
+
+        let name = DNameBuf::from_str(&query_str).unwrap();
+        let addrs = lookup_host(resolv, name);
+
+        match core.run(addrs) {
+            Ok(addrs) => {
+                let addr: String = format!("{}", addrs.iter().nth(0).unwrap());
                 let visitor: Vec<_> = addr.split('.').collect();
                 Ok(Visitor {
                     class: self.get_visitor_class(visitor[3], visitor[2]),
@@ -76,7 +109,7 @@ impl HoneypotBlacklist {
                     last_activity: self.get_last_activity(visitor[1]),
                 })
             }
-            Err(e) => Err(HoneypotBlacklistError::Std(e))
+            Err(e) => Err(HoneypotBlacklistError::Domain(e))
         }
     }
 
