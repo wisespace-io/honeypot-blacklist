@@ -4,7 +4,7 @@ version = "0.1.1"
 authors = ["Flavio Oliveira <rusty@wisespace.io>"]
 description = "Provides a client for Project Honeypot http:BL API"
 license = "MIT"
-keywords = ["Honeypot", "Blacklist", "http:BL"]
+keywords = ["Honeypot", "Blacklist"]
 
 repository = "https://github.com/wisespace-io/honeypot-blacklist"
 readme = "README.md"
