@@ -1,4 +1,4 @@
-[![License](http://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/wisespace-io/honeypot-blacklist/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/wisespace-io/honeypot-blacklist.png?branch=master)](https://travis-ci.org/wisespace-io/honeypot-blacklist)
 [![](https://meritbadge.herokuapp.com/honeypot-blacklist)](https://crates.io/crates/honeypot-blacklist)
 
 # honeypot-blacklist
